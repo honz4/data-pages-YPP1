@@ -1,0 +1,180 @@
+(define all-subsets
+  (lambda (A)
+    (if (null? A) '(())
+        (let ((aux (all-subsets (cdr A))))
+          (append 
+           aux
+           (map (lambda(B)
+                  (cons (car A) B))
+                aux))))))
+         
+        
+(define k-subsets
+  (lambda (A k)
+    (cond ((= k 0) '(()))
+          ((null? A) ())
+          (else
+           (append
+            
+            (map (lambda(B)
+                   (cons (car A) B))
+                 (k-subsets (cdr A) (- k 1)))
+            
+            (k-subsets (cdr A) k))))))
+
+(define remove
+  (lambda (x l)
+    (foldr (lambda (y a)
+             (if (equal? x y) a
+                 (cons y a)))
+           ()
+           l)))
+
+(define perm
+  (lambda (A)
+    (if (null? A) '(())
+        (apply append
+        (map 
+         
+         (lambda(x)
+           
+           (map (lambda(P)
+                  (cons x P))
+                (perm (remove x A))))
+         A)))))
+
+
+(define var
+  (lambda (A k)
+    (cond ((= k 0) '(()))
+          ((null? A) ())
+          (else
+           (apply append
+                  (map 
+         
+                   (lambda(x)
+           
+                     (map (lambda(P)
+                            (cons x P))
+                          (var (remove x A) (- k 1))))
+                   A))))))                   
+
+(define remove
+  (lambda (x l)
+    (if (null? l) ()
+        (if (equal? x (car l)) (cdr l)
+            (cons (car l)
+                  (remove x (cdr l)))))))
+
+(define remove-dup
+  (lambda (l)
+    (cond ((null? l) ())
+          ((member (car l) (cdr l)) (remove-dup (cdr l)))
+          (else (cons (car l)
+                      (remove-dup (cdr l)))))))
+          
+(define perm-rep
+  (lambda (A)
+    (if (null? A) '(())
+        (apply append
+        (map 
+         (lambda(x)
+           (map (lambda(P)
+                  (cons x P))
+                (perm-rep (remove x A))))
+         (remove-dup A))))))
+
+
+(define !
+  (lambda (! n)
+    (if (= n 0) 1
+        (* n (! ! (- n 1))))))
+
+
+((lambda (y) (y y 5))
+   (lambda (!* n)
+    (if (= n 0) 1
+        (* n (!* !* (- n 1))))))
+
+ ((lambda (y n) (y y n))
+   (lambda (!* n)
+    (if (= n 0) 1
+        (* n (!* !* (- n 1)))))
+   5)
+ ((lambda (y . n) (apply y y n))
+   (lambda (!* n)
+    (if (= n 0) 1
+        (* n (!* !* (- n 1)))))
+   5)
+ ((lambda (y . n) (apply y y n))
+   (lambda (!* n j k l)
+    (if (= n 0) 1
+        (* n (!* !* (- n 1) 0 0 0))))
+   5 0 0 1)
+
+(let !! ((n 5))
+    (if (= n 0) 1
+        (* n (!! (- n 1)))))
+
+
+(define split
+  (lambda (l)
+    (let iter ((l l)
+               (l1 ())
+               (l2 ()))
+      (if (null? l) (cons l1 l2)
+          (iter (cdr l) l2
+           (cons (car l) l1))))))
+
+(define merge
+  (lambda (l1 l2 le)
+    (cond ((null? l1) l2)
+          ((null? l2) l1)
+          ((le (car l1) (car l2))
+           (cons (car l1)
+                 (merge (cdr l1)
+                        l2 le)))
+          (else
+           (cons (car l2)
+                 (merge l1 (cdr l2) le))))))
+
+(define mergesort
+  (lambda (l le)
+    (if (or (null? l) (null? (cdr l)))
+        l
+        (let* ((s (split l))
+               (l1 (mergesort (car s) le))
+               (l2 (mergesort (cdr s) le)))
+          (merge l1 l2 le)))))
+          
+(mergesort '( 5 2 45  432 67 43 43  87 4 4 32) <=)                              
+(mergesort '( 5 2 45  432 67 43 43  87 4 4 32) >=)           
+(mergesort '( (5 . 6) (2 . 45)  (432 . 67) (43 . 43)
+                      (87 . 4) (4 . 32)) 
+           (lambda (p1 p2)
+             (<= (car p1) (car p2))))
+(mergesort '( (5 . 6) (2 . 45)  (432 . 67) (43 . 43)
+                      (87 . 4) (4 . 32)) 
+           (lambda (p1 p2)
+             (>= (car p1) (car p2))))
+;(mergesort '("dsa" "dtyy" "gfg" "twtr") string<)
+
+(define my-list?
+  (lambda (x)
+    (or (null? x)
+        (and (pair? x)
+             (my-list? (cdr x))))))
+
+(define s '(((1) ((2)) ((())) 3)))
+
+(define atom? (lambda(x) (not (list? x))))
+(define linearize
+  (lambda (s)
+    (if (atom? s) (list s)
+        (apply append (map linearize s)))))
+
+(linearize s)
+
+
+
+           
